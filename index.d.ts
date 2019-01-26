@@ -57,14 +57,14 @@ export interface MapCmd<A extends Action> {
   simulate(simulations?: CmdSimulation | MultiCmdSimulation): A[] | A | null
 }
 
-export interface RunCmd<A extends Action> {
+export interface RunCmd<A extends Action, FA extends Action = A> {
   readonly type: 'RUN';
   readonly func: Function;
   readonly args?: any[];
-  readonly failActionCreator?: ActionCreator<A>;
+  readonly failActionCreator?: ActionCreator<FA>;
   readonly successActionCreator?: ActionCreator<A>;
   readonly forceSync?: boolean;
-  simulate(simulation: CmdSimulation): A
+  simulate(simulation: CmdSimulation): A | FA
 }
 
 //deprecated types
@@ -72,12 +72,12 @@ export type SequenceCmd<A extends Action> = ListCmd<A>;
 export type BatchCmd<A extends Action> = ListCmd<A>;
 
 
-export type CmdType<A extends Action> =
+export type CmdType<A extends Action, FA extends Action = A> =
   | ActionCmd<A>
   | ListCmd<A>
   | MapCmd<A>
   | NoneCmd
-  | RunCmd<A>
+  | RunCmd<A, FA>
   | BatchCmd<A>
   | SequenceCmd<A>;
 
@@ -115,15 +115,15 @@ declare namespace Cmd {
     args?: any[]
   ): MapCmd<A>;
 
-  export function run<A extends Action>(
+  export function run<A extends Action, FA extends Action = A>(
     f: Function,
     options?: {
       args?: any[];
-      failActionCreator?: ActionCreator<A>;
+      failActionCreator?: ActionCreator<FA>;
       successActionCreator?: ActionCreator<A>;
       forceSync?: boolean;
     }
-  ): RunCmd<A>;
+  ): RunCmd<A, FA>;
 }
 
 export type ReducerMapObject<S, A extends Action = AnyAction> = {
